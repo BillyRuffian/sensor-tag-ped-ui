@@ -1,0 +1,11 @@
+.display-panel {
+  background: darkgray;
+  border: 50px solid black;
+  height: 200px;
+}
+
+.control-panel {
+  background: lightgray;
+  height: 200px;
+}
+
