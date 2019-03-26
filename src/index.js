@@ -25,6 +25,10 @@ class Display extends React.Component {
         return halt;
       case 'wait':
         return wait;
+      case 'cross':
+        return walk;
+      case 'don\'t cross':
+        return run;
       default: 
         return wtf;
     }
@@ -34,9 +38,10 @@ class Display extends React.Component {
     return (
       <div className="display-panel">
         <div className="row">
-          <div className="col-sm">
-            Gerald was an angry man
-            <i className={this.getIcon()}></i> 
+          <div className="col-sm text-center">
+            <span className="person">
+              <i className={this.getIcon()}></i>
+            </span>
           </div>
         </div>
       </div>
@@ -65,6 +70,9 @@ class Interface extends React.Component {
   constructor( props ) {
     super( props );
     this.buttonPressed = this.buttonPressed.bind( this );
+    this.goCross = this.goCross.bind( this );
+    this.goHurry = this.goHurry.bind( this );
+    this.goStop = this.goStop.bind( this );
     this.state = {
       response: 'Waiting',
       endpoint: 'http://localhost:8000',
@@ -81,9 +89,28 @@ class Interface extends React.Component {
     ) });
   }
   
+  goStop() {
+    this.setState( { crossing: 'press' } );
+  }
+  
+  goHurry() {
+    if( this.state.crossing === 'cross' ) {
+      this.setState( { crossing: 'don\'t cross' } );
+      setTimeout( this.goStop, 3000 );
+    }
+  }
+  
+  goCross() {
+    if( this.state.crossing === 'wait' ) {
+      this.setState( { crossing: 'cross' } );
+      setTimeout( this.goHurry, 3000 );
+    }
+  }
+  
   buttonPressed() {
     if( this.state.crossing === 'press' ) {
       this.setState( { crossing: 'wait' } );
+      setTimeout( this.goCross, 3000 );
     }
   }
 
