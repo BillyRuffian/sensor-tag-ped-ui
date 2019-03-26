@@ -9,6 +9,29 @@
   height: 200px;
 }
 
+.control-button {
+  width: 100%;
+  height: 200px;
+  font-weight: bold;
+  font-size: 30px;;
+}
+
+.control-button-press {
+  color: black;
+}
+
+.control-button-wait {
+  color: darkslategray;
+}
+
+.control-button-cross {
+  color: darkgreen;
+}
+
+.control-button-dont-cross {
+  color: darkred;
+}
+
 .person {
   font-size: 58px;
 }

@@ -1,8 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Io from 'socket.io-client'
+import Io from 'socket.io-client';
+import axios from 'axios';
 import './bootstrap.min.css';
 import './crossing.css';
+import http from 'http';
 
 // let socket = io( 'http://localhost:8000' )
 // 
@@ -18,6 +20,7 @@ const run="fas fa-running";
 const disabled="fab fa-accessible-icon";
 const wtf="fas fa-bomb";
 
+
 class Display extends React.Component {
   getIcon() {
     switch( this.props.crossingState ) {
@@ -27,7 +30,7 @@ class Display extends React.Component {
         return wait;
       case 'cross':
         return walk;
-      case 'don\'t cross':
+      case 'dont-cross':
         return run;
       default: 
         return wtf;
@@ -51,13 +54,28 @@ class Display extends React.Component {
 
 
 class Control extends React.Component {
+  getLabel() {
+    switch( this.props.crossingState ) {
+      case 'press':
+        return 'Press';
+      case 'wait':
+        return 'Wait';
+      case 'cross':
+        return 'Walk';
+      case 'dont-cross':
+        return 'Hurry Up';
+      default: 
+        return wtf;
+    }
+  }
+
   render( props ) {
     return (
       <div className="control-panel">
         <div className="row">
           <div className="col-sm">
-            <button type="button" className="btn btn-light" onClick={this.props.pressFn}>
-              {this.props.crossingState}
+            <button type="button" className={"btn btn-light control-button control-button-"+this.props.crossingState} onClick={this.props.pressFn}>
+              {this.getLabel()}
             </button>
           </div>
         </div>
@@ -65,6 +83,7 @@ class Control extends React.Component {
     );
   }
 }
+
 
 class Interface extends React.Component {
   constructor( props ) {
@@ -77,16 +96,28 @@ class Interface extends React.Component {
       response: 'Waiting',
       endpoint: 'http://localhost:8000',
       crossing: 'press',
+      humidity: 0.0,
+      light: 0.0,
+      irTemp: 0.0,
+      ambientTemp: 0.0,
     }
   }
   
   componentDidMount() {
-    const endpoint = this.state.endpoint;
-    const socket = Io( endpoint )
-    socket.on( 'news', data => { 
-      console.log( data );
-      this.setState( { response: data.hello } 
-    ) });
+    
+    setInterval( () => {
+      axios.get( 'https://dweet.io:443/get/latest/dweet/for/adorable-street' )
+      .then( response => response.data.with )
+      .then( data => {
+        if( data.length > 0 ) {
+          this.setState( {
+            humidity: data.humidity,
+            light: data.light,
+            irTemp: data.object_temp,
+            ambientTemp: data.ambient_temp,
+        } )}
+      } );
+    }, 50000 )
   }
   
   goStop() {
@@ -95,7 +126,7 @@ class Interface extends React.Component {
   
   goHurry() {
     if( this.state.crossing === 'cross' ) {
-      this.setState( { crossing: 'don\'t cross' } );
+      this.setState( { crossing: 'dont-cross' } );
       setTimeout( this.goStop, 3000 );
     }
   }
